@@ -28,10 +28,10 @@ type User struct {
 
 // ErrUnauthorized is returned when there the supplied credentials are not valid.
 var ErrUnauthorized = errors.New("Unauthorized")
+var customerHost = "accounts"
 
 // For Customer Lookup
 const (
-	customerHost       = "accounts"
 	customerLookupPath = "/customers/search/findByUsername"
 )
 
@@ -120,14 +120,18 @@ func lookupCustomer(u, p, domain string) (customerResponse, error) {
 }
 
 type customerResponse struct {
-	Embedded struct {
-		Customers []struct {
-			Username string `json:"username"`
-			Links    struct {
-				CustomerLink struct {
-					Href string `json:"href"`
-				} `json:"customer"`
-			} `json:"_links"`
+	Embedded Wrapper `json:"_embedded"`
+}
+
+type Wrapper struct {
+	Customers []customer `json:"customer"`
+}
+
+type customer struct {
+	Username string `json:"username"`
+	Links    struct {
+		CustomerLink struct {
+			Href string `json:"href"`
 		} `json:"customer"`
-	} `json:"_embedded"`
+	} `json:"_links"`
 }
