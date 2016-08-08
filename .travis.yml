@@ -6,9 +6,12 @@ install:
     - glide install
 script:
     - go test $(glide novendor) -v 
-    - go test $(glide novendor) -v -covermode=count -coverprofile=profile.cov
+    - go test -v -covermode=count -coverprofile=profile.coverprofile
+    - go test -v -covermode=count -coverprofile=login.coverprofile ./login
 after_success:
     - go get -v github.com/mattn/goveralls
+    - go get github.com/modocache/gover
     - export PATH=$PATH:$HOME/gopath/bin
+    - gover
     - goveralls -coverprofile=profile.cov -service=travis-ci
 
