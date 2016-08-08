@@ -1,0 +1,11 @@
+package: github.com/microservices-demo/login
+import:
+- package: github.com/go-kit/kit
+  subpackages:
+  - endpoint
+  - log
+  - transport/http
+- package: github.com/gorilla/mux
+- package: golang.org/x/net
+  subpackages:
+  - context
