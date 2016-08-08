@@ -47,3 +47,10 @@ func TestLogin(t *testing.T) {
 		t.Error("login user does not equal test user")
 	}
 }
+
+func TestRegister(t *testing.T) {
+	resp := TestService.Register("newuser", "newpassword")
+	if !resp {
+		t.Error("expected true all the time, got false")
+	}
+}
