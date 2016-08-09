@@ -16,21 +16,29 @@ import (
 	"golang.org/x/net/context"
 )
 
+var (
+	dev    bool
+	port   string
+	file   string
+	domain string
+)
+
+func init() {
+	flag.BoolVar(&dev, "dev", false, "Dev mode.")
+	flag.StringVar(&port, "port", "8081", "Port to bind HTTP listener") // TODO(pb): should be -addr, default ":8081"
+	flag.StringVar(&file, "file", "/config/users.json", "Users file")
+	flag.StringVar(&domain, "domain", "", "Domain for the accounts service")
+}
+
 func main() {
-	var (
-		dev    = flag.Bool("dev", false, "Dev mode.")
-		port   = flag.String("port", "8081", "Port to bind HTTP listener") // TODO(pb): should be -addr, default ":8081"
-		file   = flag.String("file", "/config/users.json", "Users file")
-		domain = flag.String("domain", "", "Domain for the accounts service")
-	)
 	flag.Parse()
 
 	// Mechanical stuff.
 	errc := make(chan error)
 	ctx := context.Background()
 
-	if *dev {
-		*file = "./users.json"
+	if dev {
+		file = "./users.json"
 	}
 
 	// Log domain.
@@ -42,7 +50,7 @@ func main() {
 	}
 
 	// Data domain.
-	users, err := readFile(*file)
+	users, err := readFile(file)
 	if err != nil {
 		logger.Log("err", err)
 		os.Exit(1)
@@ -51,7 +59,7 @@ func main() {
 	// Service domain.
 	var service login.Service
 	{
-		service = login.NewFixedService(users, *domain)
+		service = login.NewFixedService(users, domain)
 		service = login.LoggingMiddleware(logger)(service)
 	}
 
@@ -60,9 +68,9 @@ func main() {
 
 	// Create and launch the HTTP server.
 	go func() {
-		logger.Log("transport", "HTTP", "port", *port)
+		logger.Log("transport", "HTTP", "port", port)
 		handler := login.MakeHTTPHandler(ctx, endpoints, logger)
-		errc <- http.ListenAndServe(":"+*port, handler)
+		errc <- http.ListenAndServe(fmt.Sprintf(":%v", port), handler)
 	}()
 
 	// Capture interrupts.
