@@ -26,7 +26,7 @@ echo $CODE_DIR
 # I don't like this bit, but I'm leaving it in for consistency with old versions.
 module=login
 REPO=${GROUP}/${module}
-$DOCKER_CMD build -t ${REPO}-dev:${COMMIT} .;
+$DOCKER_CMD build -t ${REPO}-dev .;
 $DOCKER_CMD create --name ${module} ${REPO}-dev;
 $DOCKER_CMD cp ${module}:/app/main ./app;
 $DOCKER_CMD rm ${module};
